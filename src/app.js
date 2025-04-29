@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser'
 const app = express()
 
 app.use(cors({
-    origin: "http://localhost:5173", // Your frontend URL (Vite)
+    origin: "https://social-media-vite-6wyf.vercel.app", // Your frontend URL (Vite)
     credentials: true // ✅ Allows sending cookies
 }));
 app.use(bodyParser.urlencoded({ extended: true })); // Parses form data
