@@ -6,6 +6,7 @@ const app = express()
 
 app.use(cors({
     origin: "https://social-media-vite-6wyf.vercel.app", // Your frontend URL (Vite)
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true // ✅ Allows sending cookies
 }));
 app.use(bodyParser.urlencoded({ extended: true })); // Parses form data
