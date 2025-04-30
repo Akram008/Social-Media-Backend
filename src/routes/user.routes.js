@@ -5,6 +5,12 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router() 
 
+router.route('/me').get(verifyJWT, (req, res) => {
+    res.status(200).json({
+      success: true,
+      user: req.user, // added by verifyJWT middleware
+    })
+})
 router.route('/register').post(upload.single('profilePic'), registerUser)
 router.route('/login').post(loginUser)
 router.route('/logout').get(verifyJWT, logout)
