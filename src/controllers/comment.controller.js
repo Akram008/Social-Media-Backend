@@ -1,4 +1,6 @@
 import { Comment } from "../models/comment.model.js";
+import { Notification } from "../models/notification.model.js";
+import { Post } from "../models/post.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -12,6 +14,8 @@ const addComment = asyncHandler(async(req, res)=>{
         throw new ApiError(400, 'Post Id is required!')
     }
 
+    const post = await Post.findById(postId)
+
     const newComment = await Comment.create({
         comment, 
         commentedBy: userId, 
@@ -22,6 +26,16 @@ const addComment = asyncHandler(async(req, res)=>{
 
     if(!addedComment){
         throw new ApiError(404, 'Something went wrong while adding the comment!') 
+    }
+
+    if(!userId.equals(post.createdBy)){
+        const notification = await Notification.create({
+            notificationType: 'Comment', 
+            toUser: post?.createdBy, 
+            byUser: userId, 
+            postId, 
+            content: addedComment.comment
+        })
     }
 
     return res

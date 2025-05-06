@@ -17,10 +17,14 @@ const notificationSchema = new mongoose.Schema(
             ref: 'User', 
             required: true 
         },  
-        title: {
+        postId:{
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: "Post"
+        },
+        content:{
             type: String, 
-            required: true
-        }, 
+            default: ''
+        },
         isRead: {
             type: Boolean, 
             required: true, 

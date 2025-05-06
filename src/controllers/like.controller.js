@@ -1,4 +1,6 @@
 import { Like } from "../models/like.model.js";
+import { Notification } from "../models/notification.model.js";
+import { Post } from "../models/post.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -7,8 +9,8 @@ const toggleLike = asyncHandler(async(req, res)=>{
     const {postId} = req.params 
     const userId = req.user?._id 
 
+    const post = await Post.findById(postId)
     const like = await Like.findOne({likedBy: userId, liked: postId}) 
-    console.log(like)
 
     if(!like){
         const like = await Like.create({
@@ -17,6 +19,19 @@ const toggleLike = asyncHandler(async(req, res)=>{
         })
 
         const newLike = await Like.findById(like._id) 
+
+        if(!newLike){
+            throw new ApiError(404, 'Something went wrong while liking the post!')
+        }
+
+        if(!post.createdBy.equals(userId)){
+            const notification = await Notification.create({
+                notificationType: 'Like', 
+                toUser: post.createdBy, 
+                byUser: userId, 
+                postId
+            })
+        }
 
         return res
         .status(200)
