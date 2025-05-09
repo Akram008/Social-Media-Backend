@@ -1,3 +1,6 @@
+import { Comment } from "../models/comment.model.js";
+import { Like } from "../models/like.model.js";
+import { Notification } from "../models/notification.model.js";
 import { Post } from "../models/post.model.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -82,4 +85,23 @@ const getOthersPost = asyncHandler(async(req, res)=>{
 
 })
 
-export {uploadPost, getAllPostsOfLoggedInUser, getFeedPosts, getOthersPost}
+const deletePost = asyncHandler(async(req, res)=>{
+    const {postId} = req.params 
+    const userId = req.user._id 
+
+    const post = await Post.findOneAndDelete({_id: postId, createdBy: userId}) 
+
+    if(!post){
+        throw new ApiError(404, 'Something went wrong while deleting the post!')
+    } 
+    
+    await Like.deleteMany({liked: postId})
+    await Comment.deleteMany({commentedTo: postId})
+    await Notification.deleteMany({postId})
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, post, 'This post is successfully Deleted!'))
+})
+
+export {uploadPost, getAllPostsOfLoggedInUser, getFeedPosts, getOthersPost, deletePost}
