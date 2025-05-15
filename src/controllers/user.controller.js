@@ -89,7 +89,6 @@ const loginUser = asyncHandler(async(req, res)=>{
         httpOnly: true,
         secure: true,                // required on HTTPS
         sameSite: 'None',
-        domain: 'social-media-vite-6wyf.vercel.app' 
     }
 
     return res
@@ -117,7 +116,6 @@ const logout = asyncHandler(async(req, res)=>{
         httpOnly: true, 
         secure: true, 
         sameSite: 'None', 
-        domain: 'social-media-vite-6wyf.vercel.app' 
     }
 
     return res
