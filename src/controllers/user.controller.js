@@ -88,7 +88,8 @@ const loginUser = asyncHandler(async(req, res)=>{
     const options = {
         httpOnly: true,
         secure: true,                // required on HTTPS
-        sameSite: 'None', 
+        sameSite: 'None',
+        domain: 'social-media-vite-6wyf.vercel.app' 
     }
 
     return res
@@ -115,7 +116,8 @@ const logout = asyncHandler(async(req, res)=>{
     const options = {
         httpOnly: true, 
         secure: true, 
-        sameSite: 'None'
+        sameSite: 'None', 
+        domain: 'social-media-vite-6wyf.vercel.app' 
     }
 
     return res
@@ -175,4 +177,52 @@ const getUser = asyncHandler(async(req, res)=>{
     .json(new ApiResponse(200, user, 'User is fetched!'))
 })
 
-export {registerUser, loginUser, logout, currentUser, getSearchUsers, getUser}
+const updateUser = asyncHandler(async(req, res)=>{
+    const {username, firstName, lastName, email, bio} = req.body 
+    const userId = req.user._id 
+
+    const user = await User.findByIdAndUpdate(
+        userId, 
+        {
+            username, 
+            firstName, 
+            lastName, 
+            email, 
+            bio,
+        }, 
+        {new: true}
+    )
+
+    if (!user) {
+        throw new ApiError(404, 'Something went wrong while updating the user!')
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, user, 'User Updated Successfully!'))
+})
+
+const updateUserProfilePic = asyncHandler(async(req, res)=>{
+    const userId = req.user?._id 
+    const profilePicPath = req.file?.path  
+
+    const profilePic = await uploadOnCloudinary(profilePicPath)
+
+    if (!profilePic) {
+        throw new ApiError(404, 'Something went wrong while updating the pic!') 
+    }
+
+    const user = await User.findByIdAndUpdate(
+        userId, 
+        {
+            profilePic: profilePic.url
+        },
+        {new: true}
+    )
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, user, 'Profile Picture Successfully Updated!'))
+})
+
+export {registerUser, loginUser, logout, currentUser, getSearchUsers, getUser, updateUser, updateUserProfilePic}
