@@ -128,7 +128,7 @@ const logout = asyncHandler(async(req, res)=>{
 const currentUser = asyncHandler(async(req, res)=>{
     const userId = req.user?._id 
 
-    const user = await User.findById(userId) 
+    const user = await User.findById(userId).select('-password -refreshToken') 
 
     if(!user){
         throw new ApiError(404, 'User does not exist!')
@@ -223,4 +223,32 @@ const updateUserProfilePic = asyncHandler(async(req, res)=>{
     .json(new ApiResponse(200, user, 'Profile Picture Successfully Updated!'))
 })
 
-export {registerUser, loginUser, logout, currentUser, getSearchUsers, getUser, updateUser, updateUserProfilePic}
+const changePassword = asyncHandler(async(req, res)=>{
+    const userId = req.user._id
+    const {oldPassword, newPassword, confirmPassword} = req.body 
+    
+    if (![oldPassword, newPassword, confirmPassword].every(each=> each !== '')) {
+        throw new ApiError(404, 'All fields are required!')
+    }
+
+    const user = await User.findById(userId) 
+
+    const isCorrect = await user.isPasswordCorrect(oldPassword) 
+
+    if (!isCorrect) {
+        throw new ApiError(403, 'old password is incorrect!') 
+    }
+
+    if (newPassword !== confirmPassword) {
+        throw new ApiError(422, 'Both are different!')
+    }
+
+    user.password = newPassword 
+    await user.save() 
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, {}, 'Password Changed Successfully!'))
+})
+
+export {registerUser, loginUser, logout, currentUser, getSearchUsers, getUser, updateUser, updateUserProfilePic, changePassword}
