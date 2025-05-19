@@ -146,7 +146,7 @@ const getSearchUsers = asyncHandler(async(req,res)=>{
         return res.json(new ApiResponse(200, [], 'No users are there!'))
     }
 
-    const users = await User.find({username: {$regex: searchedUser, $options: 'i'}}, {username: 1, firstName: 1, lastName: 1, profilePic: 1 }) 
+    const users = await User.find({username: {$regex: '^' + searchedUser, $options: 'i'}}, {username: 1, firstName: 1, lastName: 1, profilePic: 1 }) 
 
     if(!users){
         throw new ApiError(400, 'something went wrong while searching the user!')
