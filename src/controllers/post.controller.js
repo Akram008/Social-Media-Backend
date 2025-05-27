@@ -58,6 +58,20 @@ const getAllPostsOfLoggedInUser = asyncHandler(async(req, res)=>{
     .json(new ApiResponse(200, posts, 'All posts of this user fetched!'))
 })
 
+const getPost = asyncHandler(async(req, res)=>{
+    const {postId} = req.params 
+
+    const post = await Post.findById(postId) 
+
+    if(!post){
+        throw new ApiError(404, 'No Post Found!') 
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, post, 'Post Successfully Fetched!'))
+})
+
 const getFeedPosts = asyncHandler(async(req, res)=>{
     const posts = await Post.find()?.populate({path:'createdBy', select: 'username'})
 
@@ -104,4 +118,27 @@ const deletePost = asyncHandler(async(req, res)=>{
     .json(new ApiResponse(200, post, 'This post is successfully Deleted!'))
 })
 
-export {uploadPost, getAllPostsOfLoggedInUser, getFeedPosts, getOthersPost, deletePost}
+const updatePost = asyncHandler(async(req, res)=>{
+    const {postId} = req.params 
+    const {title, content, postType} = req.body 
+    
+    const post = await Post.findByIdAndUpdate(
+        postId, 
+        {
+            title, 
+            content, 
+            postType 
+        }, 
+        {new: true}
+    ) 
+
+    if(!post){
+        throw new ApiError(400, 'Something went while updating the post!') 
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, post, 'Post Updated Successfully!'))
+})
+
+export {uploadPost, getAllPostsOfLoggedInUser, getFeedPosts, getPost ,getOthersPost, deletePost, updatePost}
